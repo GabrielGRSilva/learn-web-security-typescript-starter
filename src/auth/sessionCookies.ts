@@ -10,6 +10,9 @@ type CookieSession = {
 const sessionCookieOptions = {
   path: "/",
   expires: new Date(0),
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
 } satisfies CookieOptions;
 
 export function setSessionCookie(response: Response, session: CookieSession,): void {
