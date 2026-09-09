@@ -52,6 +52,7 @@ import {
   renderTotpLoginPage as renderTotpLoginView,
 } from "../views/auth.ts";
 import { logEvent } from "../logger.ts";
+import { revokeSession } from "../auth/sessions.ts";
 
 type AuthenticationLogFields = {
   success: boolean;
@@ -379,6 +380,11 @@ export function createAuthRouter(deps: Dependencies): Router {
   });
 
   router.post("/logout", (req, res) => {
+    const session = getCurrentSession(db, req.header("cookie"));
+    if (session) {
+      revokeSession(db, session.session.token);
+    }
+    
     const challengeToken = getTotpLoginChallengeToken(req.header("cookie"));
     abandonTotpLoginChallenge(db, req.header("cookie"));
     clearSessionCookie(res);

@@ -66,10 +66,7 @@ function findStoredSession(
     .get(tokenHash) as StoredSession | undefined;
 }
 
-export function getCurrentSession(
-  db: DatabaseSync,
-  cookieHeader: string | undefined,
-): CurrentSession | undefined {
+export function getCurrentSession(db: DatabaseSync, cookieHeader: string | undefined): CurrentSession | undefined {
   const token = getCookie(cookieHeader, "session_id");
   if (!token) {
     return undefined;
@@ -80,6 +77,10 @@ export function getCurrentSession(
     return undefined;
   }
   const session = { ...storedSession, token };
+
+  if (storedSession.revoked_at) {
+    return undefined;
+  }
 
   const user = findUserById(db, session.user_id);
   if (!user) {
