@@ -53,6 +53,7 @@ import {
 } from "../views/auth.ts";
 import { logEvent } from "../logger.ts";
 import { revokeSession } from "../auth/sessions.ts";
+import {validatePasswordResetToken, resetPasswordWithToken} from "../auth/passwordResetTokens.ts";
 
 type AuthenticationLogFields = {
   success: boolean;
@@ -433,6 +434,16 @@ export function createAuthRouter(deps: Dependencies): Router {
   router.get("/password-reset/:token", (req, res) => {
     const token = String(req.params.token ?? "");
     const resetToken = findPasswordResetToken(db, token);
+    const isValid = validatePasswordResetToken(db, token);
+
+    if (!isValid) {
+      res
+        .status(404)
+        .type("html")
+        .send(renderPasswordResetForm(token, "Reset link not found or expired"),
+        );
+      return;
+    }
 
     if (!resetToken) {
       res
@@ -451,13 +462,13 @@ export function createAuthRouter(deps: Dependencies): Router {
     const token = String(req.params.token ?? "");
     const password = String(req.body.password ?? "");
     const resetToken = findPasswordResetToken(db, token);
-
-    if (!resetToken) {
+    const isValid = validatePasswordResetToken(db, token);
+    
+    if (!isValid || !resetToken) {
       res
         .status(404)
         .type("html")
-        .send(
-          renderPasswordResetForm(token, "Reset link not found or expired"),
+        .send(renderPasswordResetForm(token, "Reset link not found or expired"),
         );
       return;
     }
@@ -498,7 +509,8 @@ export function createAuthRouter(deps: Dependencies): Router {
     }
 
     const passwordHash = await hashPassword(password);
-    const passwordResetSucceeded = true;
+    const passwordResetSucceeded = await resetPasswordWithToken(db, token, passwordHash);
+    
     if (!passwordResetSucceeded) {
       res
         .status(404)
@@ -508,8 +520,6 @@ export function createAuthRouter(deps: Dependencies): Router {
         );
       return;
     }
-
-    await updateUserPassword(db, user.id, passwordHash);
 
     res.type("html").send(renderPasswordResetCompletePage(user.email));
   });
