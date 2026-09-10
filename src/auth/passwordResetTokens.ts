@@ -60,13 +60,13 @@ export function validatePasswordResetToken(
   return row;
 }
 
-export async function resetPasswordWithToken(
+export function resetPasswordWithToken(
   db: DatabaseSync,
   token: string,
   passwordHash: string,
-): Promise<boolean> {
+): boolean {
   const now = new Date().toISOString();
-  await db.exec("BEGIN IMMEDIATE");
+  db.exec("BEGIN IMMEDIATE");
 
   try {
     const consumed = db
@@ -85,11 +85,11 @@ export async function resetPasswordWithToken(
       | undefined;
 
     if (!consumed) {
-      await db.exec("COMMIT");
+      db.exec("COMMIT");
       return false;
     }
 
-    const passwordUpdate = await db
+    const passwordUpdate = db
       .prepare(
         `
           UPDATE users
@@ -102,7 +102,7 @@ export async function resetPasswordWithToken(
       throw new Error("Password reset user not found");
     }
 
-    await db.prepare(
+    db.prepare(
       `
         UPDATE password_reset_tokens
         SET used_at = ?
@@ -110,7 +110,7 @@ export async function resetPasswordWithToken(
       `,
     ).run(now, consumed.user_id);
 
-    await db.prepare(
+    db.prepare(
       `
         UPDATE sessions
         SET revoked_at = ?
@@ -118,14 +118,14 @@ export async function resetPasswordWithToken(
       `,
     ).run(now, consumed.user_id);
 
-    await db.prepare("DELETE FROM totp_login_challenges WHERE user_id = ?").run(
+    db.prepare("DELETE FROM totp_login_challenges WHERE user_id = ?").run(
       consumed.user_id,
     );
 
-    await db.exec("COMMIT");
+    db.exec("COMMIT");
     return true;
   } catch (error) {
-    await db.exec("ROLLBACK");
+    db.exec("ROLLBACK");
     throw error;
   }
 }

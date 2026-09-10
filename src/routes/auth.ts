@@ -508,8 +508,8 @@ export function createAuthRouter(deps: Dependencies): Router {
       return;
     }
 
-    const passwordHash = await hashPassword(password);
-    const passwordResetSucceeded = await resetPasswordWithToken(db, token, passwordHash);
+    const passwordHash = hashPassword(password);
+    const passwordResetSucceeded = resetPasswordWithToken(db, token, passwordHash);
     
     if (!passwordResetSucceeded) {
       res
