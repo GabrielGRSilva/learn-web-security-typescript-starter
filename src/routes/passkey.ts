@@ -34,6 +34,7 @@ import {
 } from "../views/passkey.ts";
 import { sendErrorPage } from "../errors.ts";
 import { logEvent } from "../logger.ts";
+import {verifyAuthenticationResponse} from "../auth/passkeys.ts";
 
 type AuthenticationResponseVerifier =
   typeof import("../auth/passkeys.ts").verifyAuthenticationResponse;
@@ -120,11 +121,14 @@ export function createPasskeyRouter(deps: Dependencies): Router {
     let verification;
     try {
       verification = {
-        verified: false,
-        authenticationInfo: {
-          newCounter: passkeyVerificationInput.credential.counter,
-        },
+        response: passkeyVerificationInput.response,
+        expectedChallenge: stored.challenge,
+        expectedOrigin: rpOrigin,
+        expectedRPID: rpID,
+        requireUserVerification: true,
+        credential: passkeyVerificationInput.credential,
       };
+      verification = await verifyAuthenticationResponse(verification);
     } catch (error) {
       logEvent("passkey_login_failed", { credentialId, error: String(error) });
       res
