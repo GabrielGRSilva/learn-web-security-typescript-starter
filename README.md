@@ -1,3 +1,10 @@
+# Study Rep
+This repository is a clone of the Bearly Secure project from Boot.Dev, in which I'm saving my progress as I advance through their Web Security in TypeScript course!
+
+Learn more about Boot.Dev through my personal link: https://www.boot.dev?bannerlord=exylem
+
+The original repository description is copied below:
+
 # Bearly Secure
 
 Bearly Secure is the intentionally vulnerable starter app for "Learn Web Security in TypeScript." It's a tiny plushie shop built with TypeScript, Express, and SQLite.
