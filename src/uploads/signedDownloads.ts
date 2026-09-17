@@ -20,9 +20,6 @@ export function verifySignedDownload(
   signature: string,
   nowSeconds: number = currentUnixTime(),
 ): boolean {
-  const signatureBuffer = Buffer.from(signature, "hex");
-  
-
   if (!/^\d+$/.test(expiresValue) || !/^[a-f0-9]{64}$/.test(signature)) {
     return false;
   }
@@ -31,8 +28,10 @@ export function verifySignedDownload(
   if (!Number.isSafeInteger(expires) || expires <= nowSeconds) {
     return false;
   }
+  const signatureBuffer = Buffer.from(signature, "hex");
+  const expectedSignature = Buffer.from(signDownload(_signingKey, _fileId, expires), "hex");
 
-  return true;
+  return timingSafeEqual(signatureBuffer, expectedSignature);
 }
 
 function signDownload(
