@@ -21,13 +21,13 @@ export function createFilesRouter(deps: Dependencies): Router {
     }
 
     const fileId = Number(req.params.id);
-    if (!Number.isSafeInteger(fileId)) {
+    const file = findUploadedFileById(db, fileId);
+    if (!Number.isSafeInteger(fileId) || !file) {
       sendErrorPage(res, 404, "File Not Found", "We couldn't find that file.");
       return;
     }
 
-    const file = findUploadedFileById(db, fileId);
-    if (!file) {
+    if (file.user_id !== current.user.id && current.user.role !== "admin" && current.user.role !== "support") {
       sendErrorPage(res, 404, "File Not Found", "We couldn't find that file.");
       return;
     }
