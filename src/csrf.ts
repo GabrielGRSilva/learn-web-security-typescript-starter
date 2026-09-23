@@ -8,15 +8,23 @@ export function validateRequestOrigin(appOrigin: string): RequestHandler {
       return;
     }
 
-    if (req.headers.origin && req.headers.origin !== appOrigin) {
-      return sendErrorPage(res, 403, "Forbidden", "External origin not allowed");
+    if (req.headers.origin){
+      if(req.headers.origin !== appOrigin) {
+        return sendErrorPage(res, 403, "Forbidden", "External origin not allowed");
+      }else{
+        next();
+        return;
+      }
     }
     
     try{
-      if (!req.headers.origin && req.headers.referer && req.headers.referer.startsWith(appOrigin)) {
+      const refererURL = new URL(req.headers.referer || "");
+
+      if (refererURL.origin === appOrigin) {
           next();
+          return;
       }else{
-        return sendErrorPage(res, 403, "Forbidden", "External origin not allowed");
+        throw new Error("External origin not allowed");
       }
       
     }catch (error) {
