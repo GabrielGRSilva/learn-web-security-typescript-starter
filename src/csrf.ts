@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import { sendErrorPage } from "./errors.ts";
+import { timingSafeEqual } from "node:crypto";
 
 export function validateRequestOrigin(appOrigin: string): RequestHandler {
   return (req, res, next) => {
@@ -33,6 +34,19 @@ export function validateRequestOrigin(appOrigin: string): RequestHandler {
     }
   };
 
-export function csrfTokensMatch(_expected: string, _actual: unknown): boolean {
-  return true;
+export function csrfTokensMatch(expected: string, actual: unknown): boolean {
+  if(typeof actual !== "string") {
+    return false;
+  }
+
+  const actualToken = Buffer.from(actual, "base64");
+  const expectedToken = Buffer.from(expected, "base64");
+
+  if(actualToken.length !== expectedToken.length) {
+    return false;
+  }else if (timingSafeEqual(actualToken, expectedToken)){
+    return true;
+  }
+
+  return false;
 }
