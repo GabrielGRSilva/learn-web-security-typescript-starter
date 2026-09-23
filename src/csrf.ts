@@ -39,8 +39,8 @@ export function csrfTokensMatch(expected: string, actual: unknown): boolean {
     return false;
   }
 
-  const actualToken = Buffer.from(actual, "base64");
-  const expectedToken = Buffer.from(expected, "base64");
+  const actualToken = Buffer.from(actual, "base64url");
+  const expectedToken = Buffer.from(expected, "base64url");
 
   if(actualToken.length !== expectedToken.length) {
     return false;
