@@ -8,13 +8,10 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
 
   logEvent("unhandled_error", {
     method: req.method,
-    path:
-      typeof req.route?.path === "string" ? req.route.path : "unmatched route",
+    path: req.path,
     message: details.message,
     stack: details.stack,
   });
-
-  console.error(details);
 
   if (res.headersSent) {
     next(error);
@@ -40,12 +37,9 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
         `<nav class="page-nav" aria-label="Primary"><a class="brand-link" href="/">Bearly Secure</a></nav>
         <p class="eyebrow">Error 500</p>
         <h1>Something went wrong</h1>
-        <p class="subtitle">The request failed, but here are the diagnostic details.</p>
-        <article class="card">
-          <h2>${escapeHtml(details.name)}</h2>
-          <p>${escapeHtml(details.message)}</p>
-          <pre>${escapeHtml(details.stack ?? "No stack trace available")}</pre>
-        </article>`,
+        <p class="subtitle">The request failed! Please try again later or contact support if the problem persists.</p>
+        <p class="page-action"><a class="button-link" href="/">Return to the store</a></p>
+        `,
       ),
     );
 };
