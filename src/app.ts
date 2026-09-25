@@ -20,29 +20,7 @@ import { createProductsRouter } from "./routes/products.ts";
 import { createStorefrontRouter } from "./routes/storefront.ts";
 import { createSupportRouter } from "./routes/support.ts";
 import { migrateSensitiveDataAtRest } from "./storage/migrations.ts";
-
-const apiCors: RequestHandler = (req, res, next) => {
-  const origin = req.header("Origin");
-
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
-
-  res.setHeader("Vary", "Origin");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  if (req.method === "OPTIONS") {
-    res.sendStatus(204);
-    return;
-  }
-
-  next();
-};
+import cors from "cors";
 
 export function createApp(deps: Dependencies): express.Express {
   migrateSensitiveDataAtRest(deps.db, deps.keyring);
@@ -63,6 +41,20 @@ export function createApp(deps: Dependencies): express.Express {
   app.get("/health", (_req, res) => {
     res.json({ ok: true, app: "bearly-secure" });
   });
+
+  app.options("/api/products",
+    cors({
+      methods: ["GET"],
+      allowedHeaders: [],
+    }))
+  app.use("/api/products",
+    cors({
+      origin: "*",
+      credentials: false,
+      methods: ["GET"],
+    }),
+  );
+
   app.use(express.static("public"));
   app.use(
     "/vendor/simplewebauthn",
@@ -73,7 +65,7 @@ export function createApp(deps: Dependencies): express.Express {
   app.use(express.json());
   app.use(createPawPalRouter(deps));
   app.use(validateRequestOrigin(deps.appOrigin));
-  app.use("/api", apiCors);
+  // app.use("/api", apiCors);
   app.use(createApiRouter(deps));
 
   app.use(createArchiveRouter(deps));
