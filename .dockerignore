@@ -1,0 +1,17 @@
+node_modules/
+dist/
+scripts/
+attacker-lab/
+data/
+!data/uploads/mystery-shack-tax-exemption.pdf
+*.log
+*.sqlite
+.env*
+.git/
+*.git
+*.gitignore
+.nvmrc
+.oxfmtrc.jsonc
+.oxlintrc.jsonc
+coverage/
+tmp/
