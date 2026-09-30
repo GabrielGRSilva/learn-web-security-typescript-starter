@@ -1,5 +1,4 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { buffer } from "node:stream/consumers";
 
 const SIGNED_DOWNLOAD_TTL_SECONDS = 5 * 60;
 

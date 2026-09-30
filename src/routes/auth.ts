@@ -38,7 +38,6 @@ import {
   findUserById,
   getTotpSecret,
   normalizeEmail,
-  updateUserPassword,
 } from "../auth/users.ts";
 import {
   renderLoginPage,
