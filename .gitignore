@@ -9,4 +9,6 @@ data/uploads/*
 data/bulk-tax-documents/
 .env
 .env.local
+.env.production
 .env.*.local
+!.env.example
