@@ -8,8 +8,7 @@ data/
 *.sqlite
 .env*
 .git/
-*.git
-*.gitignore
+*.git*
 .nvmrc
 .oxfmtrc.jsonc
 .oxlintrc.jsonc
